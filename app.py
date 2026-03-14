@@ -5,7 +5,7 @@ import plotly.express as px
 # título da aplicação
 st.header('Análise Exploratória de Dados - Anúncios de Vendas de Carros')
 
-car_data = pd.read_csv('../vehicles.csv')  # lendo os dados
+car_data = pd.read_csv('vehicles.csv')  # lendo os dados
 build_histogram = st.checkbox('Criar um histograma')  # criar um botão
 
 if build_histogram:  # se a caixa de seleção for selecionada
@@ -19,7 +19,7 @@ if build_histogram:  # se a caixa de seleção for selecionada
     # exibir um gráfico Plotly interativo
     st.plotly_chart(fig, use_container_width=True)
 
-car_data = pd.read_csv('../vehicles.csv')  # lendo os dados
+car_data = pd.read_csv('vehicles.csv')  # lendo os dados
 build_scatter = st.checkbox('Criar um gráfico de dispersão')  # criar um botão
 
 if build_scatter:  # se a caixa de seleção for selecionada
