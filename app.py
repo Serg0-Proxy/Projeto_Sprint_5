@@ -1,34 +1,65 @@
-import streamlit as st
+"""Análise exploratória de anúncios de venda de carros (Streamlit + Plotly)."""
+
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
-# título da aplicação
-st.header('Análise Exploratória de Dados - Anúncios de Vendas de Carros')
+DATA_PATH = Path(__file__).parent / "vehicles.csv"
 
-car_data = pd.read_csv('vehicles.csv')  # lendo os dados
-build_histogram = st.checkbox('Criar um histograma')  # criar um botão
+LABELS = {
+    "odometer": "Odômetro",
+    "price": "Preço (US$)",
+}
 
-if build_histogram:  # se a caixa de seleção for selecionada
-    # escrever uma mensagem
-    st.write(
-        'Criando um histograma para o conjunto de dados de anúncios de vendas de carros')
 
-    # criar um histograma
-    fig = px.histogram(car_data, x="odometer")
+@st.cache_data
+def load_data(path: Path) -> pd.DataFrame:
+    """Lê o CSV uma única vez; nas próximas execuções usa o resultado em cache."""
+    return pd.read_csv(path)
 
-    # exibir um gráfico Plotly interativo
-    st.plotly_chart(fig, use_container_width=True)
 
-car_data = pd.read_csv('vehicles.csv')  # lendo os dados
-build_scatter = st.checkbox('Criar um gráfico de dispersão')  # criar um botão
+def show_histogram(df: pd.DataFrame) -> None:
+    """Histograma da quilometragem (odômetro) dos anúncios."""
+    fig = px.histogram(df, x="odometer", labels=LABELS)
+    fig.update_layout(yaxis_title="Quantidade de anúncios")
+    st.plotly_chart(fig)
 
-if build_scatter:  # se a caixa de seleção for selecionada
-    # escrever uma mensagem
-    st.write(
-        'Criando um gráfico de dispersão para o conjunto de dados de anúncios de vendas de carros')
 
-    # criar um gráfico de dispersão
-    fig = px.scatter(car_data, x="odometer", y="price")
+def show_scatter(df: pd.DataFrame) -> None:
+    """Gráfico de dispersão entre quilometragem e preço."""
+    fig = px.scatter(df, x="odometer", y="price", labels=LABELS)
+    st.plotly_chart(fig)
 
-    # exibir um gráfico Plotly interativo
-    st.plotly_chart(fig, use_container_width=True)
+
+def main() -> None:
+    st.set_page_config(page_title="Anúncios de Carros", page_icon="🚗")
+
+    st.header("Análise Exploratória de Dados - Anúncios de Vendas de Carros")
+
+    if not DATA_PATH.exists():
+        st.error(f"Arquivo de dados não encontrado: {DATA_PATH.name}")
+        st.stop()
+
+    car_data = load_data(DATA_PATH)
+    total = f"{len(car_data):,}".replace(",", ".")
+    st.caption(f"{total} anúncios no conjunto de dados")
+
+    if st.checkbox("Criar um histograma"):
+        st.write(
+            "Criando um histograma para o conjunto de dados "
+            "de anúncios de vendas de carros"
+        )
+        show_histogram(car_data)
+
+    if st.checkbox("Criar um gráfico de dispersão"):
+        st.write(
+            "Criando um gráfico de dispersão para o conjunto de dados "
+            "de anúncios de vendas de carros"
+        )
+        show_scatter(car_data)
+
+
+if __name__ == "__main__":
+    main()
